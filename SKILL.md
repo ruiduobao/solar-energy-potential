@@ -1,14 +1,11 @@
 ---
-name: solar-energy-potential
-display_name: 太阳能潜力评估工具
-version: 0.1.0
-author: ruiduobao
-license: MIT-0
-description: |
-  Calculate solar PV energy potential from NASA POWER solar radiation data.
+description: 'Calculate solar PV energy potential from NASA POWER solar radiation
+  data.
+
   Computes annual GHI, optimal tilt angle, estimated PV output, and economic analysis.
-runtime: python>=3.8
-tags: [gis, solar, energy, nasa-power, renewable]
+
+  '
+name: solar-energy-potential
 ---
 
 # Solar Energy Potential
@@ -38,21 +35,21 @@ Assess solar photovoltaic (PV) energy potential using NASA POWER solar radiation
 
 ### Assess a single location
 ```bash
-python scripts/solar-energy-potential.py assess \
+python scripts\solar-energy-potential.py assess \
   --lat 39.9 --lon 116.4 \
   --output solar_assessment.json
 ```
 
 ### Batch process from CSV
 ```bash
-python scripts/solar-energy-potential.py batch \
+python scripts\solar-energy-potential.py batch \
   --input locations.csv --lat-col lat --lon-col lon \
   --output solar_batch.json
 ```
 
 ### Economic analysis
 ```bash
-python scripts/solar-energy-potential.py economic \
+python scripts\solar-energy-potential.py economic \
   --lat 39.9 --lon 116.4 \
   --capacity 5.0 --cost-per-kwp 800 --electricity-price 0.12 \
   --output economic.json
@@ -143,7 +140,7 @@ Specify with `--temporal-resolution monthly`. Default is `daily`.
 In addition to JSON, output results as CSV:
 
 ```bash
-python scripts/solar-energy-potential.py assess \
+python scripts\solar-energy-potential.py assess \
   --lat 39.9 --lon 116.4 \
   --output solar_assessment.csv --format csv
 ```
@@ -272,7 +269,7 @@ NASA POWER (Prediction Of Worldwide Energy Resources) API.
 
 ### Batch Assessment from CSV
 ```bash
-python scripts/solar_energy_potential.py assess   --input locations.csv --output solar_assessment.json
+python scripts\solar-energy-potential.py assess   --input locations.csv --output solar_assessment.json
 ```
 
 ### CI/CD Integration (GitHub Actions)
@@ -292,14 +289,14 @@ jobs:
           python-version: '3.11'
       - run: pip install requests
       - run: |
-          python scripts/solar_energy_potential.py assess \
+          python scripts\solar-energy-potential.py assess \
             --input data/solar_sites.csv \
             --output data/solar_latest.json
 ```
 
 ### PostgreSQL Import
 ```bash
-python scripts/solar_energy_potential.py assess   --input sites.csv --output solar.json
+python scripts\solar-energy-potential.py assess   --input sites.csv --output solar.json
 
 # Parse JSON and import
 python -c "
@@ -346,21 +343,21 @@ psql -d gis_db -c "\COPY solar_assessment FROM 'solar.csv' CSV HEADER"
 
 ### 单点评估
 ```bash
-python scripts/solar-energy-potential.py assess \
+python scripts\solar-energy-potential.py assess \
   --lat 39.9 --lon 116.4 \
   --output solar_assessment.json
 ```
 
 ### 批量处理
 ```bash
-python scripts/solar-energy-potential.py batch \
+python scripts\solar-energy-potential.py batch \
   --input locations.csv --lat-col lat --lon-col lon \
   --output solar_batch.json
 ```
 
 ### 经济分析
 ```bash
-python scripts/solar-energy-potential.py economic \
+python scripts\solar-energy-potential.py economic \
   --lat 39.9 --lon 116.4 \
   --capacity 5.0 --cost-per-kwp 800 --electricity-price 0.12 \
   --output economic.json
@@ -465,7 +462,7 @@ NASA POWER 数据支持三种时间分辨率：
 除 JSON 外，还支持 CSV 输出：
 
 ```bash
-python scripts/solar-energy-potential.py assess \
+python scripts\solar-energy-potential.py assess \
   --lat 39.9 --lon 116.4 \
   --output solar_assessment.csv --format csv
 ```

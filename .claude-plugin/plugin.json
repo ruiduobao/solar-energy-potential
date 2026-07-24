@@ -1,0 +1,9 @@
+{
+  "name": "solar-energy-potential",
+  "description": "GIS skill for solar-energy-potential",
+  "version": "0.1.0",
+  "author": "ruiduobao",
+  "skills": [
+    "solar-energy-potential"
+  ]
+}

@@ -42,43 +42,6 @@ DEFAULT_CAPACITY_KWP = 1.0
 DEFAULT_COST_PER_KWP = 1000.0
 DEFAULT_ELECTRICITY_PRICE = 0.10
 
-__version__ = "0.2.0"
-USER_AGENT = f"solar-energy-potential/{__version__}"
-
-
-def write_qa_summary(qa_path, *, skill, command, args, payload, extra=None):
-    """Write a JSON run-summary sidecar to qa_path (Phase 5 optimization).
-
-    The sidecar includes the user-facing args, the computed metrics and
-    a UTC timestamp so QA / regression tests can match run output to inputs.
-    """
-    from datetime import datetime as _dt, timezone as _tz
-
-    summary = dict(payload) if isinstance(payload, dict) else {"result": payload}
-    summary.setdefault("skill", skill)
-    summary["command"] = command
-    summary["version"] = __version__
-    summary["user_agent"] = USER_AGENT
-    summary["timestamp"] = _dt.now(_tz.utc).isoformat()
-    # Echo input args (so QA can match a run to its inputs without re-parsing).
-    # Only include JSON-serializable primitive values — skip Mock / file-handle /
-    # custom objects so the sidecar is always clean.
-    for flag in ("lat", "lon", "place", "year", "efficiency", "performance_ratio",
-                 "capacity", "cost_per_kwp", "electricity_price", "input",
-                 "lat_col", "lon_col", "no_nominatim", "output", "json"):
-        if hasattr(args, flag):
-            val = getattr(args, flag)
-            if isinstance(val, (str, int, float, bool, type(None))):
-                summary.setdefault(flag, val)
-    if extra:
-        for k, v in extra.items():
-            summary.setdefault(k, v)
-    qa_p = Path(qa_path)
-    qa_p.parent.mkdir(parents=True, exist_ok=True)
-    with open(qa_p, "w", encoding="utf-8") as f:
-        json.dump(summary, f, ensure_ascii=False, indent=2)
-    return qa_p
-
 
 # ─── Utility functions ───────────────────────────────────────────────────────
 
@@ -349,11 +312,6 @@ def cmd_assess(args):
             json.dump(result, f, indent=2)
         print(f"\nSaved: {args.output}")
 
-    if args.qa:
-        write_qa_summary(args.qa, skill="solar-energy-potential", command="assess",
-                         args=args, payload=result)
-        print(f"QA: {args.qa}")
-
     if args.json:
         print(json.dumps(result, indent=2))
 
@@ -441,24 +399,6 @@ def cmd_batch(args):
             json.dump(results, f, indent=2)
         print(f"\nSaved: {args.output}")
 
-    if args.qa:
-        # batch may have many rows; keep the sidecar small by including
-        # the summary fields + first row as a sample.
-        n_total = len(results)
-        n_valid = sum(1 for r in results if "error" not in r)
-        write_qa_summary(
-            args.qa, skill="solar-energy-potential", command="batch",
-            args=args,
-            payload={
-                "n_total": n_total,
-                "n_valid": n_valid,
-                "n_errors": n_total - n_valid,
-                "sample_row": results[0] if results else None,
-                "output_path": args.output,
-            },
-        )
-        print(f"QA: {args.qa}")
-
     if args.json:
         print(json.dumps(results, indent=2))
 
@@ -541,11 +481,6 @@ def cmd_economic(args):
             json.dump(result, f, indent=2)
         print(f"\nSaved: {args.output}")
 
-    if args.qa:
-        write_qa_summary(args.qa, skill="solar-energy-potential", command="economic",
-                         args=args, payload=result)
-        print(f"QA: {args.qa}")
-
     if args.json:
         print(json.dumps(result, indent=2))
 
@@ -590,8 +525,6 @@ Examples:
     p_assess.add_argument("--performance-ratio", type=float, default=DEFAULT_PERFORMANCE_RATIO,
                           help="Performance ratio (0.50-0.95)")
     p_assess.add_argument("--json", action="store_true", help="Output as JSON")
-    p_assess.add_argument("--qa", metavar="PATH", default=None,
-                          help="Write a JSON run-summary sidecar to PATH (Phase 5).")
     p_assess.set_defaults(func=cmd_assess)
 
     # ── batch ──
@@ -606,8 +539,6 @@ Examples:
     p_batch.add_argument("--performance-ratio", type=float, default=DEFAULT_PERFORMANCE_RATIO,
                          help="Performance ratio")
     p_batch.add_argument("--json", action="store_true", help="Output as JSON")
-    p_batch.add_argument("--qa", metavar="PATH", default=None,
-                         help="Write a JSON run-summary sidecar to PATH (Phase 5).")
     p_batch.set_defaults(func=cmd_batch)
 
     # ── economic ──
@@ -633,8 +564,6 @@ Examples:
     p_econ.add_argument("--performance-ratio", type=float, default=DEFAULT_PERFORMANCE_RATIO,
                         help="Performance ratio")
     p_econ.add_argument("--json", action="store_true", help="Output as JSON")
-    p_econ.add_argument("--qa", metavar="PATH", default=None,
-                        help="Write a JSON run-summary sidecar to PATH (Phase 5).")
     p_econ.set_defaults(func=cmd_economic)
 
     return parser
@@ -649,7 +578,7 @@ def main():
         sys.exit(1)
 
     try:
-        return args.func(args)
+        args.func(args)
     except ValueError as e:
         print(f"ERROR: {e}")
         sys.exit(1)
@@ -659,4 +588,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

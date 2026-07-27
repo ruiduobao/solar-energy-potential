@@ -1,4 +1,4 @@
-﻿---
+---
 name: solar-energy-potential
 description: 'Calculate solar PV energy potential from NASA POWER solar radiation data. Computes annual GHI, optimal tilt angle, estimated PV output, and economic analysis.'
 ---
